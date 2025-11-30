@@ -1,1 +1,6 @@
-activating venv: .venv\Scripts\activate
+create virtual env: python -m venv .venv
+activate env:  .venv/Scripts/Activate.ps1
+import these libraries:
+pip install pandas scikit-learn nltk flask flask-cors sentence-transformers
+
+
