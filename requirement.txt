@@ -3,4 +3,7 @@ activate env:  .venv/Scripts/Activate.ps1
 import these libraries:
 pip install pandas scikit-learn nltk flask flask-cors sentence-transformers
 
+for running the app: use->
+python app.py
+
 
