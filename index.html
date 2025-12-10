@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutri-ChatBot | Diet Recommendation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .chat-container {
+            max-width: 90%;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .chat-area {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding: 1.5rem;
+            scroll-behavior: smooth;
+        }
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .bot-bubble {
+            background-color: #eff6ff; /* Light blue */
+            border-bottom-left-radius: 0.25rem;
+            color: #1e40af; /* Darker blue */
+        }
+        .user-bubble {
+            background-color: #3b82f6; /* Blue */
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+            margin-left: auto;
+        }
+        .typing-indicator span {
+            animation: bounce 1s infinite;
+        }
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-8px); }
+        }
+        /* Mobile adjustments */
+        @media (max-width: 640px) {
+            .chat-container {
+                max-width: 100%;
+                height: 95vh;
+                margin: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="chat-container rounded-xl">
+        <div class="bg-gray-800 text-white p-4 rounded-t-xl shadow-lg flex items-center justify-between">
+            <h1 class="text-xl font-bold">Nutri-ChatBot 🤖</h1>
+            <span class="text-sm bg-green-500 px-2 py-0.5 rounded-full">Online</span>
+        </div>
+
+        <div id="chat-area" class="chat-area">
+            <div class="message-bubble bot-bubble">
+                Hello! I am Nutri-Bot, your personal diet recommendation engine. I can suggest dietary plans based on your health condition.
+                <br><br>
+                Please tell me about your health. For example, you can say:
+                <ul>
+                    <li class="list-disc ml-4">"I have diabetes and high cholesterol."</li>
+                    <li class="list-disc ml-4">"I'm looking for a diet plan for general health."</li>
+                </ul>
+            </div>
+            </div>
+
+        <div class="p-4 border-t border-gray-200">
+            <div id="typing-indicator" class="typing-indicator text-sm text-gray-500 mb-2 hidden">
+                Bot is typing <span>.</span><span>.</span><span>.</span>
+            </div>
+            <div class="flex space-x-3">
+                <input type="text" id="user-input" placeholder="Describe your health condition or ask a question..."
+                    class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                    onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button id="send-button" onclick="sendMessage()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-150 transform hover:scale-105 disabled:opacity-50">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chat-area');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        const CHAT_API_URL = 'http://127.0.0.1:5000/chat';
+        
+        // --- CONVERSATION STATE: NO LONGER NEEDED ---
+        // Removed: conversationState, lastPredictedCondition, isAffirmative, isNegative, handleStateTransition
+
+        // --- UI Functions ---
+
+        function appendMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message-bubble');
+
+            if (sender === 'bot') {
+                messageDiv.classList.add('bot-bubble');
+            } else {
+                messageDiv.classList.add('user-bubble');
+            }
+            
+            // Format markdown for bold/newlines
+            if (sender === 'bot') {
+                const formattedText = text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                messageDiv.innerHTML = formattedText;
+            } else {
+                 messageDiv.textContent = text;
+            }
+
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function toggleInput(enabled) {
+            userInput.disabled = !enabled;
+            sendButton.disabled = !enabled;
+            if (enabled) {
+                typingIndicator.classList.add('hidden');
+            } else {
+                typingIndicator.classList.remove('hidden');
+            }
+        }
+        
+        // --- API & Logic ---
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            appendMessage('user', message);
+            userInput.value = '';
+
+            // Send to server
+            toggleInput(false);
+            fetchRecommendations(message); 
+        }
+
+        async function fetchRecommendations(query) {
+            try {
+                // Simplified payload (no state variables)
+                const payload = { 
+                    query: query
+                };
+
+                const response = await fetch(CHAT_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                let botResponse = '';
+
+                if (data.next_action === 'RESET' || data.next_action === 'CLARIFY' || data.next_action === 'DELIVER_ADVICE') {
+                    // All server paths now result in a single response message
+                    botResponse = data.recommendation || "I encountered an error. Please try starting a new query.";
+                
+                } else {
+                     botResponse = data.recommendation || "I'm not sure how to respond. Can you tell me about your health condition?";
+                }
+
+                if (botResponse) {
+                    appendMessage('bot', botResponse);
+                }
+
+            } catch (error) {
+                console.error('Error fetching chat response:', error);
+                appendMessage('bot', `Sorry, I encountered an API error. Details: ${error.message}`);
+            } finally {
+                toggleInput(true);
+                userInput.focus();
+            }
+        }
+
+        window.onload = () => userInput.focus();
+
+    </script>
+
+</body>
+</html>

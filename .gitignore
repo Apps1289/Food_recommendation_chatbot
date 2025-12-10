@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.dist-info/
+
+# Environments
+.venv/
+venv/
+.env
+
+# Data and models
+*.pkl
+*.pickle
+*.h5
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
