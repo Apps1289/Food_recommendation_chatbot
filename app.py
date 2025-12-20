@@ -7,7 +7,7 @@ from huggingface_hub import InferenceClient
 import pandas as pd
 
 # --- CONFIGURATION ---
-HF_TOKEN = "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" # <--- PASTE YOUR TOKEN HERE
+HF_TOKEN = "HF_TOKEN" # <--- PASTE YOUR TOKEN HERE
 HF_MODEL = "meta-llama/Llama-3.2-3B-Instruct"
 
 logging.basicConfig(level=logging.INFO)
