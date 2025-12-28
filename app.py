@@ -5,6 +5,8 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from huggingface_hub import InferenceClient
 import pandas as pd
+import sys
+from models_def import NutriCareNLP, ICMRDietEngine
 
 # --- CONFIGURATION ---
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -21,16 +23,20 @@ client = InferenceClient(api_key=HF_TOKEN)
 
 # --- REQUIRED CLASS DEFINITIONS FOR PICKLE ---
 # These MUST match the names used in your training notebook
-class NutriCareNLP:
-    def __init__(self):
-        self.symptom_classifier = None
-        self.intent_classifier = None
+# class NutriCareNLP:
+#     def __init__(self):
+#         self.symptom_classifier = None
+#         self.intent_classifier = None
 
-class ICMRDietEngine:
-    def __init__(self, food_df, health_df, icmr_rda_df):
-        self.food_df = food_df
-        self.health_df = health_df
-        self.icmr_rda_df = icmr_rda_df
+# class ICMRDietEngine:
+#     def __init__(self, food_df, health_df, icmr_rda_df):
+#         self.food_df = food_df
+#         self.health_df = health_df
+#         self.icmr_rda_df = icmr_rda_df
+
+import __main__
+__main__.NutriCareNLP = NutriCareNLP
+__main__.ICMRDietEngine = ICMRDietEngine
 
 # --- LOAD MODELS ---
 def load_models():
