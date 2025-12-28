@@ -13,10 +13,10 @@ venv/
 .env
 
 # Data and models
-*.pkl
-*.pickle
-*.h5
-*.db
+#*.pkl
+#*.pickle
+#*.h5
+#*.db
 
 # OS
 .DS_Store
