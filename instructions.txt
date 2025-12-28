@@ -1,0 +1,4 @@
+step 1:  instal virtual env-> python -m venv .venv
+step 2: activate vir env ->  .venv\Scripts\Activate.ps1
+step 3: download reqirements.txt -> pip install -r requirements.txt
+step 4: run backend -> python app.py
