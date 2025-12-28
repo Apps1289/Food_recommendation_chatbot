@@ -16,4 +16,5 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git push --force https://Chuchlu:$HF_TOKEN@huggingface.co/spaces/Chuchlu/DietEngine main
+          # We use "hf" as a placeholder username because the token handles the identity
+          git push --force https://hf:$HF_TOKEN@huggingface.co/spaces/Chuchlu/DietEngine main
